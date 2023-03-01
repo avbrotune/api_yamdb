@@ -41,7 +41,7 @@ class CategoryViewSet(GenreViewSet):
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
-        instance = get_object_or_404(Genre, slug=slug)
+        instance = get_object_or_404(Category, slug=slug)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
