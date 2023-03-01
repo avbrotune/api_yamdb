@@ -4,7 +4,6 @@ from .views import GenreViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register('genres', GenreViewSet, basename='genres')
-router_v1.register(r'genres/^[-a-zA-Z0-9_]+$', GenreViewSet, basename='genres')
 
 urlpatterns = [
 
