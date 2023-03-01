@@ -1,14 +1,14 @@
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import GenreViewSet
 
-from api.views import UserViewSet
-
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-
+router_v1 = DefaultRouter()
+router_v1.register('genres', GenreViewSet, basename='genres')
+router_v1.register(r'genres/^[-a-zA-Z0-9_]+$', GenreViewSet, basename='genres')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    # path('auth/signup/', include('djoser.urls')),
+
+    path('v1/', include(router_v1.urls)),
 
 ]
+
