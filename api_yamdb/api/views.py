@@ -1,6 +1,7 @@
 from rest_framework import (
     viewsets,
-    mixins
+    mixins,
+    filters,
 )
 from rest_framework.response import Response
 from rest_framework import status
@@ -17,8 +18,10 @@ class GenreViewSet(
     mixins.CreateModelMixin,
 
 ):
+    filter_backends = (filters.SearchFilter,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
+    search_fields = ('name',)
 
     def perform_destroy(self, instance):
         instance.delete()
