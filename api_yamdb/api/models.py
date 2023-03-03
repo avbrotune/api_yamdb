@@ -6,5 +6,6 @@ class Genre(models.Model):
     slug = models.SlugField(max_length=50, unique=True)
 
 
-class Category(Genre):
-    pass
+class Category(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(max_length=50, unique=True)
