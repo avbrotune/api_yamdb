@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.models import Genre, Category, Title
+from reviews.models import Genre, Category, Title
 from api.permissions import IsSuperOrIsAdmin
 from api.serializers import CategorySerializer, CheckCodeSerializer, GenreSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, SignupSerializer, UserSerializer
 from users.models import User

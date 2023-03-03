@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'api',
+    'reviews',
     'rest_framework_simplejwt',
 ]
 
@@ -133,4 +134,3 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'madwave-krsk'
 EMAIL_HOST_PASSWORD = 'uaizaakdyfojvykh'
 EMAIL_USE_TLS = True
-

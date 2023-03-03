@@ -2,8 +2,8 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from api.models import Genre, Category, Title
-
+from reviews.models import Genre, Category, Title
+from users.models import User
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -71,6 +71,8 @@ class TitleSerializer_GET(serializers.ModelSerializer):
             'description',
             'genre',
             'category'
+        )
+
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
