@@ -21,7 +21,7 @@ class CategorySerializer(serializers.ModelSerializer):
         )
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class TitleSerializer_POST_PATCH_DELETE(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         many=False,
         slug_field='slug',
@@ -32,6 +32,28 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Genre.objects.all()
     )
+
+    class Meta:
+        model = Title
+        fields = (
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category'
+        )
+
+
+class TitleSerializer_GET(serializers.ModelSerializer):
+    category = CategorySerializer(
+        many=False,
+        read_only=True
+    )
+    genre = GenreSerializer(
+        many=True,
+        read_only=True
+    )
+
 
     class Meta:
         model = Title

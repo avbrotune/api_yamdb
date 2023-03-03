@@ -12,7 +12,8 @@ from api.models import Genre, Category, Title
 from api.serializers import (
     GenreSerializer,
     CategorySerializer,
-    TitleSerializer
+    TitleSerializer_POST_PATCH_DELETE,
+    TitleSerializer_GET
 )
 
 
@@ -59,12 +60,20 @@ class TitleViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin
 ):
+
     filter_backends = (DjangoFilterBackend,)
-    serializer_class = TitleSerializer
+    # serializer_class = TitleSerializer
     queryset = Title.objects.all()
+
     filterset_fields = (
         'category',
         'genre',
         'name',
         'year'
     )
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH'):
+            return TitleSerializer_POST_PATCH_DELETE
+        else:
+            return TitleSerializer_GET
