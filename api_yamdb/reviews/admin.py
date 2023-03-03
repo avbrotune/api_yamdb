@@ -1,3 +1,11 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Comment
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+    )
+    empty_value_display = '-пусто-'
+
+admin.site.register(Comment, CommentAdmin)
