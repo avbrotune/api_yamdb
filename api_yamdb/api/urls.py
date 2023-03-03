@@ -1,30 +1,30 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import (
-    GenreViewSet,
-    CategoryViewSet,
-    TitleViewSet
-)
+from django.urls import include, path
+from rest_framework import routers
 
-router_v1 = DefaultRouter()
-router_v1.register(
-    'genres',
+from api.views import CategoryViewSet, CheckCodeViewSet, GenreViewSet, SignupViewSet, TitleViewSet, UserViewSet
+
+
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(
+    r'genres',
     GenreViewSet,
     basename='genres'
 )
-router_v1.register(
-    'categories',
+router.register(
+    r'categories',
     CategoryViewSet,
     basename='categories'
 )
-router_v1.register(
-    'titles',
+router.register(
+    r'titles',
     TitleViewSet,
     basename='titles'
 )
 
+
 urlpatterns = [
-
-    path('v1/', include(router_v1.urls)),
-
+    path('auth/signup/', SignupViewSet.as_view({'post': 'create'})),
+    path('auth/token/', CheckCodeViewSet.as_view({'post': 'create'})),
+    path('', include(router.urls)),
 ]
