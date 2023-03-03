@@ -26,14 +26,14 @@ class ReviewAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class TitleAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'text',
-    )
-    empty_value_display = '-пусто-'
+# class TitleAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'pk',
+#         'text',
+#     )
+#     empty_value_display = '-пусто-'
 
 
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Review, ReviewAdmin)
-admin.site.register(Title, TitleAdmin)
+# admin.site.register(Title, TitleAdmin)

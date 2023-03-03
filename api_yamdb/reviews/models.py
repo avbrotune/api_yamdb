@@ -8,16 +8,9 @@ from users.models import User
 FIRST_SYMBOLS = 10
 
 
-class Title(models.Model):
-    text = models.TextField()
-
-    def __str__(self) -> str:
-        return self.text
-
-
 class Review(models.Model):
     title_id = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews'
+        "Title", on_delete=models.CASCADE, related_name='reviews'
     )
     text = models.TextField()
     author = models.ForeignKey(
