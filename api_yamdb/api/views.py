@@ -18,15 +18,12 @@ class GenreViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
-
 ):
+
     filter_backends = (filters.SearchFilter,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-
-    def perform_destroy(self, instance):
-        instance.delete()
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
@@ -35,9 +32,15 @@ class GenreViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CategoryViewSet(GenreViewSet):
+class CategoryViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+):
+
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+    search_fields = ('name',)
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
