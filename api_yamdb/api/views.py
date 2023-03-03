@@ -62,7 +62,6 @@ class TitleViewSet(
 ):
 
     filter_backends = (DjangoFilterBackend,)
-    # serializer_class = TitleSerializer
     queryset = Title.objects.all()
 
     filterset_fields = (
