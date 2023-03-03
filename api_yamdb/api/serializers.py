@@ -32,16 +32,21 @@ class TitleSerializer_POST_PATCH_DELETE(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Genre.objects.all()
     )
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = (
+            'id',
             'name',
             'year',
             'description',
             'genre',
             'category'
         )
+
+    def get_id(self, obj):
+        return obj.id
 
 
 class TitleSerializer_GET(serializers.ModelSerializer):
@@ -54,10 +59,10 @@ class TitleSerializer_GET(serializers.ModelSerializer):
         read_only=True
     )
 
-
     class Meta:
         model = Title
         fields = (
+            'id',
             'name',
             'year',
             'description',
