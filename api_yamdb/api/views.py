@@ -6,11 +6,13 @@ from rest_framework import (
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 
-from api.models import Genre, Category
+from api.models import Genre, Category, Title
 from api.serializers import (
     GenreSerializer,
-    CategorySerializer
+    CategorySerializer,
+    TitleSerializer
 )
 
 
@@ -48,3 +50,21 @@ class CategoryViewSet(
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class TitleViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin
+):
+    filter_backends = (DjangoFilterBackend,)
+    serializer_class = TitleSerializer
+    queryset = Title.objects.all()
+    filterset_fields = (
+        'category',
+        'genre',
+        'name',
+        'year'
+    )
