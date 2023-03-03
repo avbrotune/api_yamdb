@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
+    'api',
     'rest_framework_simplejwt',
 ]
 
@@ -109,6 +111,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
+
 AUTH_USER_MODEL = "users.User"
 
 
@@ -130,3 +133,4 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'madwave-krsk'
 EMAIL_HOST_PASSWORD = 'uaizaakdyfojvykh'
 EMAIL_USE_TLS = True
+

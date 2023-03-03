@@ -1,6 +1,7 @@
 from random import randint
 
 from django.core.mail import send_mail
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
@@ -9,9 +10,70 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.models import Genre, Category, Title
 from api.permissions import IsSuperOrIsAdmin
-from api.serializers import CheckCodeSerializer, SignupSerializer, UserSerializer
+from api.serializers import CategorySerializer, CheckCodeSerializer, GenreSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, SignupSerializer, UserSerializer
 from users.models import User
+
+
+class GenreViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+):
+    filter_backends = (filters.SearchFilter,)
+    serializer_class = GenreSerializer
+    queryset = Genre.objects.all()
+    search_fields = ('name',)
+
+    def destroy(self, request, *args, **kwargs):
+        slug = self.kwargs.get('pk')
+        instance = get_object_or_404(Genre, slug=slug)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoryViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+):
+
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    search_fields = ('name',)
+
+    def destroy(self, request, *args, **kwargs):
+        slug = self.kwargs.get('pk')
+        instance = get_object_or_404(Category, slug=slug)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TitleViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin
+):
+
+    filter_backends = (DjangoFilterBackend,)
+    queryset = Title.objects.all()
+
+    filterset_fields = (
+        'category',
+        'genre',
+        'name',
+        'year'
+    )
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH'):
+            return TitleSerializer_POST_PATCH_DELETE
+        else:
+            return TitleSerializer_GET
 
 
 class SignupViewSet(mixins.CreateModelMixin,
