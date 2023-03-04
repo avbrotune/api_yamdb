@@ -43,6 +43,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
+
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre

@@ -3,7 +3,7 @@ from random import randint
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, mixins, status, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Genre, Category, Title
-from api.permissions import IsSuperOrIsAdmin
+from api.permissions import IsSuperOrIsAdmin, IsAdminOrReadOnly
 from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
 
@@ -50,8 +50,10 @@ class GenreViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
+    # permission_classes = (IsAdminOrReadOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
@@ -67,8 +69,10 @@ class CategoryViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
-
+    filter_backends = (filters.SearchFilter,)
+    # permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
