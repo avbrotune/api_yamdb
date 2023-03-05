@@ -12,9 +12,10 @@ class IsSuperOrIsAdmin(permissions.BasePermission):
         )
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class TitlePermission(permissions.BasePermission):
+
     def has_permission(self, request, view):
-        return bool(
-            request.user and request.user.is_staff
-            or request.method in permissions.SAFE_METHODS
-        )
+        if view.action in ['retrieve', 'list']:
+            return True
+        elif view.action == ['create', 'partial_update', 'destroy']:
+            return request.user or request.user.is_admin

@@ -11,8 +11,9 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Genre, Category, Title
-from api.permissions import IsSuperOrIsAdmin, IsAdminOrReadOnly
-from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
+from api.permissions import IsSuperOrIsAdmin, TitlePermission
+from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
+    ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
 
 
@@ -53,7 +54,8 @@ class GenreViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = (IsAdminOrReadOnly,)
+    # permission_classes = (ReadOnlyOrIsAdmin,)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
@@ -72,7 +74,8 @@ class CategoryViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = (IsAdminOrReadOnly,)
+    # permission_classes = (ReadOnlyOrIsAdmin,)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
@@ -92,9 +95,9 @@ class TitleViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin
 ):
-
     filter_backends = (DjangoFilterBackend,)
     queryset = Title.objects.all()
+    permission_classes = (TitlePermission,)
 
     filterset_fields = (
         'category',
@@ -108,6 +111,12 @@ class TitleViewSet(
             return TitleSerializer_POST_PATCH_DELETE
         else:
             return TitleSerializer_GET
+
+    # def get_permissions(self):
+    #     if self.request.method == 'GET':
+    #         return [permissions.AllowAny]
+    #     elif self.request.method in ('POST', 'PATCH', 'DELETE'):
+    #         return [permissions.IsAdminUser]
 
 
 class SignupViewSet(mixins.CreateModelMixin,
@@ -163,7 +172,7 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     ordering = ['id']
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated],)
+    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated], )
     def me(self, request):
         if request.method == 'PATCH':
             serializer = UserSerializer(
