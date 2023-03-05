@@ -1,8 +1,8 @@
 from random import randint
 
 from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -15,6 +15,7 @@ from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPerm
 from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
     ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
+from api.filters import TitleFilter
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -61,12 +62,13 @@ class GenreViewSet(
     queryset = Genre.objects.all()
     search_fields = ('name',)
     pagination_class = PageNumberPagination
-
-    def destroy(self, request, *args, **kwargs):
-        slug = self.kwargs.get('pk')
-        instance = get_object_or_404(Genre, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
+    #
+    # def destroy(self, request, *args, **kwargs):
+    #     slug = self.kwargs.get('pk')
+    #     instance = get_object_or_404(Genre, slug=slug)
+    #     self.perform_destroy(instance)
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoryViewSet(
@@ -83,6 +85,7 @@ class CategoryViewSet(
     queryset = Category.objects.all()
     search_fields = ('name',)
     pagination_class = PageNumberPagination
+    lookup_fields = 'slug'
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
@@ -99,14 +102,15 @@ class TitleViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin
 ):
-    filter_backends = (DjangoFilterBackend,)
     queryset = Title.objects.all()
     permission_classes = (TitlePermission,)
     pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filerset_class = TitleFilter
 
     filterset_fields = (
-        'category',
-        'genre',
+        'category__slug',
+        'genre__slug',
         'name',
         'year'
     )
@@ -116,12 +120,6 @@ class TitleViewSet(
             return TitleSerializer_POST_PATCH_DELETE
         else:
             return TitleSerializer_GET
-
-    # def get_permissions(self):
-    #     if self.request.method == 'GET':
-    #         return [permissions.AllowAny]
-    #     elif self.request.method in ('POST', 'PATCH', 'DELETE'):
-    #         return [permissions.IsAdminUser]
 
 
 class SignupViewSet(mixins.CreateModelMixin,
