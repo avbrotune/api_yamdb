@@ -3,7 +3,7 @@ from random import randint
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets, permissions
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -56,18 +56,10 @@ class GenreViewSet(
 ):
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
-    http_method_names = ['get', 'post', 'delete']
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-    pagination_class = PageNumberPagination
     lookup_field = 'slug'
-    #
-    # def destroy(self, request, *args, **kwargs):
-    #     slug = self.kwargs.get('pk')
-    #     instance = get_object_or_404(Genre, slug=slug)
-    #     self.perform_destroy(instance)
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoryViewSet(
@@ -78,18 +70,10 @@ class CategoryViewSet(
 ):
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
-    http_method_names = ['get', 'post', 'delete']
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-    pagination_class = PageNumberPagination
-    lookup_fields = 'slug'
-
-    def destroy(self, request, *args, **kwargs):
-        slug = self.kwargs.get('pk')
-        instance = get_object_or_404(Category, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(
@@ -102,7 +86,6 @@ class TitleViewSet(
 ):
     queryset = Title.objects.all()
     permission_classes = (TitlePermission,)
-    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
@@ -114,7 +97,7 @@ class TitleViewSet(
     )
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
+        if self.request.method in ('POST', 'PATCH', 'DELETE'):
             return TitleSerializer_POST_PATCH_DELETE
         else:
             return TitleSerializer_GET
