@@ -57,7 +57,6 @@ class GenreViewSet(
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
     http_method_names = ['get', 'post', 'delete']
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
@@ -80,7 +79,6 @@ class CategoryViewSet(
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
     http_method_names = ['get', 'post', 'delete']
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
@@ -106,7 +104,7 @@ class TitleViewSet(
     permission_classes = (TitlePermission,)
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
-    filerset_class = TitleFilter
+    filterset_class = TitleFilter
 
     filterset_fields = (
         'category__slug',
