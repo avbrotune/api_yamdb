@@ -43,7 +43,10 @@ class ReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
+
 class GenreSerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
+
     class Meta:
         model = Genre
         fields = (
@@ -53,6 +56,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
+
     class Meta:
         model = Category
         fields = (

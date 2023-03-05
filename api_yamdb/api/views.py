@@ -1,8 +1,8 @@
 from random import randint
 
 from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -11,9 +11,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Genre, Category, Title
-from api.permissions import IsSuperOrIsAdmin
-from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
+from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPermission
+from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
+    ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
+from api.filters import TitleFilter
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -50,34 +52,28 @@ class GenreViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
+    permission_classes = (GenreCategoryPermission,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-
-    def destroy(self, request, *args, **kwargs):
-        slug = self.kwargs.get('pk')
-        instance = get_object_or_404(Genre, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
 
 
 class CategoryViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
-
+    filter_backends = (filters.SearchFilter,)
+    permission_classes = (GenreCategoryPermission,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-
-    def destroy(self, request, *args, **kwargs):
-        slug = self.kwargs.get('pk')
-        instance = get_object_or_404(Category, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(
@@ -88,19 +84,20 @@ class TitleViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin
 ):
-
-    filter_backends = (DjangoFilterBackend,)
     queryset = Title.objects.all()
+    permission_classes = (TitlePermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     filterset_fields = (
-        'category',
-        'genre',
+        'category__slug',
+        'genre__slug',
         'name',
         'year'
     )
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
+        if self.request.method in ('POST', 'PATCH', 'DELETE'):
             return TitleSerializer_POST_PATCH_DELETE
         else:
             return TitleSerializer_GET
@@ -159,7 +156,7 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     ordering = ['id']
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated],)
+    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated], )
     def me(self, request):
         if request.method == 'PATCH':
             serializer = UserSerializer(
