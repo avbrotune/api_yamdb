@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Genre, Category, Title
-from api.permissions import IsSuperOrIsAdmin, TitlePermission
+from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPermission
 from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
     ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
@@ -54,11 +54,13 @@ class GenreViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = (ReadOnlyOrIsAdmin,)
+    permission_classes = (GenreCategoryPermission,)
+    http_method_names = ['get', 'post', 'delete']
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
+    pagination_class = PageNumberPagination
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
@@ -74,11 +76,13 @@ class CategoryViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = (ReadOnlyOrIsAdmin,)
+    permission_classes = (GenreCategoryPermission,)
+    http_method_names = ['get', 'post', 'delete']
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
+    pagination_class = PageNumberPagination
 
     def destroy(self, request, *args, **kwargs):
         slug = self.kwargs.get('pk')
@@ -98,6 +102,7 @@ class TitleViewSet(
     filter_backends = (DjangoFilterBackend,)
     queryset = Title.objects.all()
     permission_classes = (TitlePermission,)
+    pagination_class = PageNumberPagination
 
     filterset_fields = (
         'category',
