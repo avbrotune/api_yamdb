@@ -17,5 +17,5 @@ class TitlePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if view.action in ['retrieve', 'list']:
             return True
-        elif view.action == ['create', 'partial_update', 'destroy']:
+        elif view.action in ['create', 'partial_update', 'destroy']:
             return request.user or request.user.is_admin
