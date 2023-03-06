@@ -30,7 +30,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, pk=review_id)
 
     def get_queryset(self):
-        return self.get_review().comments.all()
+        return self.get_review().comments.all().order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(
@@ -69,7 +69,7 @@ class GenreViewSet(
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
     serializer_class = GenreSerializer
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('id')
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -83,7 +83,7 @@ class CategoryViewSet(
     filter_backends = (filters.SearchFilter,)
     permission_classes = (GenreCategoryPermission,)
     serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('id')
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -96,7 +96,7 @@ class TitleViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin
 ):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().order_by('id')
     permission_classes = (TitlePermission,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
