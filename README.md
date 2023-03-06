@@ -95,6 +95,6 @@ python manage.py runserver
 
 ## Авторы
 
-Броницкий Алексей - https://github.com/avbrotune
-Заводов Андрей - https://github.com/SleekVortex
-Михайлов Александр - https://github.com/MihailovAlexander
+- Броницкий Алексей - https://github.com/avbrotune
+- Заводов Андрей - https://github.com/SleekVortex
+- Михайлов Александр - https://github.com/MihailovAlexander
