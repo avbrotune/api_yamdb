@@ -1,4 +1,6 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -14,30 +16,44 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(
+        read_only=True
+    )
 
     class Meta:
         model = Comment
         fields = "__all__"
-        read_only_fields = ('author', 'review_id', 'pub_date',)
+        read_only_fields = ('author', 'review', 'pub_date',)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        default=serializers.CurrentUserDefault(),
+        read_only=True
+    )
+    score = serializers.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
+
     class Meta:
         model = Review
-        fields = "__all__"
-        read_only_fields = ('author', 'title_id', 'pub_date',)
+        fields = (
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date',
+        )
+        read_only_fields = ('title', 'pub_date',)
 
     def validate(self, data):
-        if self.context['request'].method == 'POST':
+        if self.context.get('request').method == 'POST':
             title_id = (
                 self.context['request'].parser_context['kwargs']['title_id']
             )
-            # author = self.context['request'].user
-            author = get_object_or_404(User, pk=1),
-            if Review.objects.filter(
-                author=author,
-                title_id=title_id
-            ).exists():
+            author = self.context['request'].user
+            if author.reviews.filter(title=title_id).exists():
                 raise serializers.ValidationError(
                     'Нельзя оставить отзыв на одно произведение дважды'
                 )
@@ -103,6 +119,7 @@ class TitleSerializer_GET(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
@@ -110,10 +127,16 @@ class TitleSerializer_GET(serializers.ModelSerializer):
             'id',
             'name',
             'year',
+            'rating',
             'description',
             'genre',
             'category'
         )
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(
+            Avg('score')).get('score__avg')
+        return round(rating, 2) if rating else rating
 
 
 class SignupSerializer(serializers.Serializer):

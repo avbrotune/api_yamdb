@@ -6,12 +6,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Genre, Category, Title
-from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPermission
+from reviews.models import Genre, Category, Title, Review
+from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPermission, IsSuperUserIsAdminIsModeratorIsAuthor
 from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
     ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
 from users.models import User
@@ -20,31 +20,43 @@ from api.filters import TitleFilter
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModeratorIsAuthor,
+    )
 
-    def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        return get_object_or_404(Title, pk=title_id)
+    def get_review(self):
+        review_id = self.kwargs.get('review_id')
+        return get_object_or_404(Review, pk=review_id)
 
     def get_queryset(self):
-        return self.get_title().reviews.all()
+        return self.get_review().comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review()
+        )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModeratorIsAuthor,
+    )
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
-        return get_object_or_404(Title, pk=title_id)
+        return get_object_or_404(Title, id=title_id)
 
     def get_queryset(self):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(
-            # author=self.request.user,
-            author=get_object_or_404(User, pk=1),
-            # author=User.objects.get(pk=1)
-            title_id=self.get_title()
+            author=self.request.user,
+            title=self.get_title()
         )
 
 
