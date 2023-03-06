@@ -19,5 +19,4 @@ class TitleFilter(FilterSet):
             'year',
             'genre',
             'category',
-
         )

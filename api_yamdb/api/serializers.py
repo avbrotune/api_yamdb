@@ -153,9 +153,13 @@ class SignupSerializer(serializers.Serializer):
     def validate(self, data):
         if data.get('username') == "me":
             raise serializers.ValidationError()
-        if User.objects.filter(username=data.get('username')) and not User.objects.filter(email=data.get('email')):
+        if User.objects.filter(
+            username=data.get('username')
+        ) and not User.objects.filter(email=data.get('email')):
             raise serializers.ValidationError()
-        if not User.objects.filter(username=data.get('username')) and User.objects.filter(email=data.get('email')):
+        if not User.objects.filter(
+            username=data.get('username')
+        ) and User.objects.filter(email=data.get('email')):
             raise serializers.ValidationError()
         return data
 

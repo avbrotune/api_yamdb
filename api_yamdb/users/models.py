@@ -32,4 +32,3 @@ class User(AbstractUser):
     confirmation_code = models.IntegerField(
         null=True
     )
-    

@@ -1,3 +1,5 @@
+from api.filters import TitleFilter
+from users.models import User
 from random import randint
 
 from django.core.mail import send_mail
@@ -6,16 +8,29 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Genre, Category, Title, Review
-from api.permissions import IsSuperOrIsAdmin, TitlePermission, GenreCategoryPermission, IsSuperUserIsAdminIsModeratorIsAuthor
-from api.serializers import CategorySerializer, CheckCodeSerializer, CommentSerializer, GenreSerializer, \
-    ReviewSerializer, SignupSerializer, TitleSerializer_GET, TitleSerializer_POST_PATCH_DELETE, UserSerializer
-from users.models import User
-from api.filters import TitleFilter
+from api.permissions import (
+    IsSuperOrIsAdmin,
+    IsSuperOrIsAdminOrSafe,
+    IsSuperUserIsAdminIsModeratorIsAuthor
+)
+from api.serializers import (
+    CategorySerializer,
+    CheckCodeSerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignupSerializer,
+    TitleSerializer_GET,
+    TitleSerializer_POST_PATCH_DELETE,
+    UserSerializer)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -67,7 +82,7 @@ class GenreViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (GenreCategoryPermission,)
+    permission_classes = (IsSuperOrIsAdminOrSafe,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all().order_by('id')
     search_fields = ('name',)
@@ -81,7 +96,7 @@ class CategoryViewSet(
     mixins.DestroyModelMixin
 ):
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (GenreCategoryPermission,)
+    permission_classes = (IsSuperOrIsAdminOrSafe,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all().order_by('id')
     search_fields = ('name',)
@@ -97,7 +112,7 @@ class TitleViewSet(
     mixins.UpdateModelMixin
 ):
     queryset = Title.objects.all().order_by('id')
-    permission_classes = (TitlePermission,)
+    permission_classes = (IsSuperOrIsAdminOrSafe,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
@@ -119,7 +134,6 @@ class SignupViewSet(mixins.CreateModelMixin,
                     viewsets.GenericViewSet):
 
     def create(self, request):
-        permission_classes = (AllowAny,)
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             confirmation_code = randint(100000, 999999)
@@ -168,7 +182,11 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     ordering = ['id']
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated], )
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated],
+    )
     def me(self, request):
         if request.method == 'PATCH':
             serializer = UserSerializer(
