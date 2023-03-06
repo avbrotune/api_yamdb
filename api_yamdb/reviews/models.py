@@ -8,46 +8,6 @@ from users.models import User
 FIRST_SYMBOLS = 10
 
 
-class Review(models.Model):
-    title_id = models.ForeignKey(
-        "Title", on_delete=models.CASCADE, related_name='reviews'
-    )
-    text = models.TextField()
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-    )
-    score = models.IntegerField(
-        default=1,
-        validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
-        ]
-    )
-    pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
-    )
-
-    def __str__(self):
-        return self.text[:FIRST_SYMBOLS]
-
-
-class Comment(models.Model):
-    review_id = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
-    text = models.TextField()
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
-    )
-    pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
-    )
-
-    def __str__(self):
-        return self.text[:FIRST_SYMBOLS]
-
-
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -83,3 +43,52 @@ class Title(models.Model):
         verbose_name='Категория произведения',
         on_delete=models.CASCADE,
     )
+
+
+class Review(models.Model):
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    text = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+    )
+    score = models.IntegerField(
+        default=1,
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1)
+        ]
+    )
+    pub_date = models.DateTimeField(
+        'Дата публикации', auto_now_add=True, db_index=True
+    )
+
+    class Meta:
+        ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'], name="unique_review")
+        ]
+
+    def __str__(self):
+        return self.text[:FIRST_SYMBOLS]
+
+
+class Comment(models.Model):
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments'
+    )
+    pub_date = models.DateTimeField(
+        'Дата публикации', auto_now_add=True, db_index=True
+    )
+
+    def __str__(self):
+        return self.text[:FIRST_SYMBOLS]
