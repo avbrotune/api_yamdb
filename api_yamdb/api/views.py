@@ -21,6 +21,7 @@ from api.filters import TitleFilter
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
+    
     def get_title(self):
         title_id = self.kwargs.get('title_id')
         return get_object_or_404(Title, pk=title_id)
