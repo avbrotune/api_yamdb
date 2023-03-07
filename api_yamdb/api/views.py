@@ -27,9 +27,10 @@ from api.serializers import (
     GenreSerializer,
     ReviewSerializer,
     SignupSerializer,
-    TitleSerializer_GET,
-    TitleSerializer_POST_PATCH_DELETE,
-    UserSerializer)
+    TitleSerializerForGet,
+    TitleSerializerForPostPatchDelete,
+    UserSerializer
+)
 from reviews.models import Genre, Category, Title, Review
 from users.models import User
 
@@ -76,7 +77,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
 
-class GenreViewSet(
+class GenreCategoryBaseViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -84,34 +85,21 @@ class GenreViewSet(
 ):
     filter_backends = (filters.SearchFilter,)
     permission_classes = (IsSuperOrIsAdminOrSafe,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class GenreViewSet(GenreCategoryBaseViewSet):
     serializer_class = GenreSerializer
     queryset = Genre.objects.all().order_by('id')
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
-class CategoryViewSet(
-    viewsets.GenericViewSet,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin
-):
-    filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsSuperOrIsAdminOrSafe,)
+class CategoryViewSet(GenreCategoryBaseViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all().order_by('id')
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
-class TitleViewSet(
-    viewsets.GenericViewSet,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin
-):
+class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().order_by('id')
     permission_classes = (IsSuperOrIsAdminOrSafe,)
     filter_backends = (DjangoFilterBackend,)
@@ -126,9 +114,9 @@ class TitleViewSet(
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH', 'DELETE'):
-            return TitleSerializer_POST_PATCH_DELETE
+            return TitleSerializerForPostPatchDelete
         else:
-            return TitleSerializer_GET
+            return TitleSerializerForGet
 
 
 class SignupViewSet(mixins.CreateModelMixin,
