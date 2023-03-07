@@ -7,7 +7,10 @@ from users.models import User
 FIRST_SYMBOLS = 10
 
 
-class Genre(models.Model):
+class GenreCategoryBase(models.Model):
+    class Meta:
+        abstract = True
+
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
@@ -15,12 +18,12 @@ class Genre(models.Model):
         return self.slug
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+class Genre(GenreCategoryBase):
+    pass
 
-    def __str__(self):
-        return self.slug
+
+class Category(GenreCategoryBase):
+    pass
 
 
 class Title(models.Model):
