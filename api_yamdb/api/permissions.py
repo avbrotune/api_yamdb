@@ -7,7 +7,7 @@ class IsSuperOrIsAdmin(permissions.BasePermission):
             request.user.is_authenticated
             and (
                 request.user.is_superuser
-                or request.user.role == "admin"
+                or request.user.role == request.user.ADMIN
             )
         )
 
@@ -19,7 +19,7 @@ class IsSuperOrIsAdminOrSafe(permissions.BasePermission):
             request.user.is_authenticated
             and (
                 request.user.is_superuser
-                or request.user.role == "admin"
+                or request.user.role == request.user.ADMIN
             )
             or request.method in permissions.SAFE_METHODS
         )
@@ -34,7 +34,7 @@ class IsSuperUserIsAdminIsModeratorIsAuthor(permissions.BasePermission):
             and (
                 request.user == obj.author
                 or request.user.is_superuser
-                or request.user.role == "admin"
-                or request.user.role == "moderator"
+                or request.user.role == request.user.ADMIN
+                or request.user.role == request.user.MODERATOR
             )
         )
