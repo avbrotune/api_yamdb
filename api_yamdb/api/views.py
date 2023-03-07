@@ -1,5 +1,3 @@
-from api.filters import TitleFilter
-from users.models import User
 from random import randint
 
 from django.core.mail import send_mail
@@ -15,7 +13,8 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Genre, Category, Title, Review
+
+from api.filters import TitleFilter
 from api.permissions import (
     IsSuperOrIsAdmin,
     IsSuperOrIsAdminOrSafe,
@@ -31,6 +30,8 @@ from api.serializers import (
     TitleSerializer_GET,
     TitleSerializer_POST_PATCH_DELETE,
     UserSerializer)
+from reviews.models import Genre, Category, Title, Review
+from users.models import User
 
 
 class CommentViewSet(viewsets.ModelViewSet):

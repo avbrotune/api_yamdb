@@ -8,13 +8,6 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = "__all__"
-
-
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(
         read_only=True
@@ -152,15 +145,17 @@ class SignupSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data.get('username') == "me":
-            raise serializers.ValidationError()
+            raise serializers.ValidationError(
+                'Forbidden to have "me" as username'
+            )
         if User.objects.filter(
             username=data.get('username')
-        ) and not User.objects.filter(email=data.get('email')):
-            raise serializers.ValidationError()
-        if not User.objects.filter(
-            username=data.get('username')
-        ) and User.objects.filter(email=data.get('email')):
-            raise serializers.ValidationError()
+        ).exists() != User.objects.filter(
+            email=data.get('email')
+        ).exists():
+            raise serializers.ValidationError(
+                "Email or username is already used for other account"
+            )
         return data
 
 
