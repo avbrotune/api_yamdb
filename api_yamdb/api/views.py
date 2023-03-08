@@ -113,7 +113,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     )
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH', 'DELETE'):
+        if self.request.method in {'POST', 'PATCH', 'DELETE'}:
             return TitleSerializerForPostPatchDelete
         else:
             return TitleSerializerForGet

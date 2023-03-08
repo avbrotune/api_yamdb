@@ -8,11 +8,12 @@ FIRST_SYMBOLS = 10
 
 
 class GenreCategoryBase(models.Model):
-    class Meta:
-        abstract = True
 
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return self.slug
