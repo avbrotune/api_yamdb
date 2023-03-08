@@ -54,25 +54,17 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    lookup_field = 'slug'
 
     class Meta:
         model = Genre
-        fields = (
-            'name',
-            'slug',
-        )
+        exclude = ('id',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    lookup_field = 'slug'
 
     class Meta:
         model = Category
-        fields = (
-            'name',
-            'slug',
-        )
+        exclude = ('id',)
 
 
 class TitleSerializerForPostPatchDelete(serializers.ModelSerializer):
