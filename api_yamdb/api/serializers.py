@@ -1,6 +1,5 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -100,7 +99,7 @@ class TitleSerializerForGet(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
@@ -113,11 +112,6 @@ class TitleSerializerForGet(serializers.ModelSerializer):
             'genre',
             'category'
         )
-
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(
-            Avg('score')).get('score__avg')
-        return round(rating, 2) if rating else rating
 
 
 class SignupSerializer(serializers.Serializer):
