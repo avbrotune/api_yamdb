@@ -29,6 +29,7 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default=USER,
     )
-    confirmation_code = models.IntegerField(
+    confirmation_code = models.CharField(
+        max_length=50,
         null=True
     )

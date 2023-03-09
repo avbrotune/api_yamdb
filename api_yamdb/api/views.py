@@ -1,5 +1,4 @@
-from random import randint
-
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -129,25 +128,21 @@ class SignupViewSet(mixins.CreateModelMixin,
 
     def create(self, request):
         serializer = SignupSerializer(data=request.data)
-        if serializer.is_valid():
-            confirmation_code = randint(100000, 999999)
-            user, _ = User.objects.get_or_create(
-                **serializer.validated_data
-            )
-            user.confirmation_code = confirmation_code
-            user.save()
-            header = 'Код подтверждения yamdb.me'
-            message = f'Код подтверждения: {confirmation_code}'
-            sender_email = 'madwave-krsk@yandex.ru'
-            email = serializer.validated_data.get("email")
-            send_mail(
-                header,
-                message,
-                sender_email,
-                [email]
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.data['email']
+        username = serializer.data['username']
+        user, _ = User.objects.get_or_create(email=email, username=username)
+        confirmation_code = default_token_generator.make_token(user)
+        header = 'Код подтверждения yamdb.me'
+        message = f'Код подтверждения: {confirmation_code}'
+        sender_email = 'madwave-krsk@yandex.ru'
+        send_mail(
+            header,
+            message,
+            sender_email,
+            [email]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CheckCodeViewSet(viewsets.ModelViewSet):
