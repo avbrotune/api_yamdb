@@ -1,6 +1,7 @@
 from random import randint
 
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
@@ -100,7 +101,6 @@ class CategoryViewSet(GenreCategoryBaseViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('id')
     permission_classes = (IsSuperOrIsAdminOrSafe,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -117,6 +117,11 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleSerializerForPostPatchDelete
         else:
             return TitleSerializerForGet
+
+    def get_queryset(self):
+        return Title.objects.annotate(
+            rating=Avg('reviews__score')
+        ).order_by('id')
 
 
 class SignupViewSet(mixins.CreateModelMixin,
